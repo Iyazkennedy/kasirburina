@@ -1,0 +1,272 @@
+/* Tema "game 2D": bingkai tebal, ubin kotak, tombol bulat merah, tiket di samping */
+:root {
+  --blue: #1f4fd8;
+  --blue-dark: #0b1a5c;
+  --blue-light: #cfe0ff;
+  --red: #e8294b;
+  --cream: #f1ede4;
+  --frame: #dcdce0;
+  --tile: #26262e;
+  --tile-line: #3a3a46;
+  --green: #17a673;
+  --amber: #f5a524;
+  --ink: #101636;
+  --font: 'Lilita One', 'Baloo 2', 'Trebuchet MS', 'Arial Black', sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background-color: var(--blue);
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 36px, transparent 36px 72px),
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.12), transparent 40%);
+  min-height: 100vh;
+  letter-spacing: .3px;
+}
+
+button { font-family: inherit; cursor: pointer; }
+.hidden { display: none !important; }
+
+.stage {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  display: grid;
+  grid-template-columns: 1fr 230px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ---------- Bingkai utama ---------- */
+.panel {
+  position: relative;
+  background: var(--frame);
+  border: 6px solid var(--blue-dark);
+  border-radius: 34px;
+  box-shadow: 0 8px 0 var(--blue-dark), inset 0 0 0 4px #fff;
+  padding: 18px;
+}
+.panel.board { background: #2f6bf0; box-shadow: 0 8px 0 var(--blue-dark), inset 0 0 0 4px var(--blue-light); }
+
+.titlebar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--blue-dark); color: #fff;
+  border-radius: 999px; padding: 8px 18px; margin-bottom: 14px;
+  font-size: 18px;
+}
+.titlebar .count { background: #fff; color: var(--blue-dark); border-radius: 999px; padding: 2px 12px; font-size: 16px; }
+
+.logo-sign {
+  display: inline-block;
+  background: var(--cream); color: var(--red);
+  font-size: clamp(30px, 6vw, 54px); line-height: .95;
+  padding: 10px 22px 12px; border: 5px solid var(--blue-dark); border-radius: 18px;
+  transform: rotate(-3deg);
+  text-shadow: 3px 3px 0 var(--blue-dark);
+  box-shadow: 5px 5px 0 var(--blue-dark);
+}
+.logo-sign small { display: block; font-size: .38em; color: var(--blue-dark); text-shadow: none; letter-spacing: 2px; }
+
+.badge {
+  position: absolute; left: -22px; top: -26px; width: 118px; height: 118px;
+  background: var(--red); color: #fff; display: grid; place-items: center; text-align: center;
+  font-size: 22px; line-height: 1; text-shadow: 2px 2px 0 var(--blue-dark);
+  border: 5px solid #fff; border-radius: 50%;
+  box-shadow: 0 0 0 5px var(--red), 4px 6px 0 5px var(--blue-dark);
+  transform: rotate(-10deg);
+}
+
+.board-top { display: flex; align-items: center; justify-content: center; padding: 6px 0 14px 70px; }
+
+/* ---------- Grid ubin ---------- */
+.grid { display: grid; gap: 12px; }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+
+.tile {
+  position: relative; aspect-ratio: 1 / 1; min-width: 0;
+  border: 4px solid #fff; border-radius: 20px;
+  background: #e8f0ff; color: var(--blue-dark);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  padding: 6px; text-align: center;
+  box-shadow: 0 5px 0 rgba(11,26,92,.45);
+  transition: transform .12s, box-shadow .12s;
+}
+.tile .emoji { font-size: clamp(30px, 6vw, 56px); line-height: 1; }
+.tile .name { font-size: clamp(11px, 1.8vw, 16px); line-height: 1.05; }
+.tile .price { font-size: clamp(10px, 1.6vw, 14px); background: var(--blue-dark); color: #fff; border-radius: 999px; padding: 1px 9px; }
+button.tile:hover { transform: translateY(-4px); box-shadow: 0 9px 0 rgba(11,26,92,.45); }
+button.tile:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(11,26,92,.45); }
+.tile.empty { background: rgba(255,255,255,.28); border-style: dashed; color: rgba(255,255,255,.75); }
+.tile.closed { filter: grayscale(.9); opacity: .6; }
+
+/* Ubin gelap ala "gudang" untuk menu */
+.dark-grid { background: var(--tile); border: 5px solid #101018; border-radius: 22px; padding: 12px; }
+.tile.dark { background: #33333e; border-color: var(--tile-line); color: #fff; box-shadow: 0 4px 0 #101018; }
+.tile.dark .price { background: var(--amber); color: #3a2300; }
+.tile.dark.soldout { background: #1d1d24; color: #666; border-color: #2a2a33; cursor: not-allowed; }
+.tile.dark.soldout .emoji { filter: grayscale(1); opacity: .45; }
+.tile.dark.soldout::after { content: '🚫'; position: absolute; font-size: 36px; opacity: .8; }
+.tile .qty-pill {
+  position: absolute; right: -8px; top: -10px; background: var(--red); color: #fff;
+  border: 3px solid #fff; border-radius: 999px; min-width: 30px; height: 30px; display: grid; place-items: center; font-size: 15px;
+}
+
+/* ---------- Tombol ---------- */
+.round-btn {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: var(--red); color: #fff; font-size: 30px; line-height: 1;
+  border: 5px solid var(--blue-dark); box-shadow: 0 5px 0 var(--blue-dark), inset 0 0 0 3px #ff7b93;
+  display: inline-grid; place-items: center; text-decoration: none; text-shadow: 2px 2px 0 var(--blue-dark);
+}
+.round-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--blue-dark), inset 0 0 0 3px #ff7b93; }
+
+.side { display: flex; flex-direction: column; gap: 16px; align-items: stretch; }
+.side .top-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+.ticket {
+  position: relative; background: #8fd3ff; color: var(--blue-dark);
+  border: 5px solid var(--blue-dark); border-radius: 16px;
+  padding: 14px 10px; font-size: 21px; text-align: center;
+  box-shadow: 0 6px 0 var(--blue-dark), inset 0 0 0 3px #fff;
+  clip-path: none;
+}
+.ticket::before, .ticket::after {
+  content: ''; position: absolute; top: 50%; width: 16px; height: 16px; background: var(--blue);
+  border: 4px solid var(--blue-dark); border-radius: 50%; transform: translateY(-50%);
+}
+.ticket::before { left: -12px; } .ticket::after { right: -12px; }
+.ticket.t2 { background: #ffd57a; } .ticket.t3 { background: #ff9fb0; }
+.ticket:hover { transform: translateY(-3px); }
+.ticket:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--blue-dark), inset 0 0 0 3px #fff; }
+.ticket .pill { display: inline-block; margin-left: 6px; background: var(--red); color: #fff; border-radius: 999px; padding: 0 9px; font-size: 16px; }
+
+.cta {
+  width: 100%; padding: 14px; border: 5px solid var(--blue-dark); border-radius: 18px;
+  background: var(--green); color: #fff; font-size: 22px; text-shadow: 2px 2px 0 var(--blue-dark);
+  box-shadow: 0 6px 0 var(--blue-dark), inset 0 0 0 3px #5ee0b3;
+}
+.cta:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--blue-dark), inset 0 0 0 3px #5ee0b3; }
+.cta:disabled { background: #7b8396; box-shadow: 0 6px 0 var(--blue-dark); cursor: not-allowed; text-shadow: none; }
+.btn-small {
+  border: 3px solid var(--blue-dark); background: #fff; color: var(--blue-dark);
+  border-radius: 12px; padding: 6px 12px; font-size: 15px; box-shadow: 0 3px 0 var(--blue-dark);
+}
+.btn-small.red { background: var(--red); color: #fff; }
+.btn-small.green { background: var(--green); color: #fff; }
+.btn-small.blue { background: #3a74ff; color: #fff; }
+
+/* ---------- Keranjang ("gudang") ---------- */
+.cart-panel {
+  background: #6b6b76; border: 6px solid #202029; border-radius: 26px; padding: 14px;
+  box-shadow: 0 8px 0 #202029; position: relative;
+}
+.cart-tab {
+  position: absolute; top: -26px; left: 22px; background: #6b6b76; color: #fff;
+  border: 6px solid #202029; border-bottom: none; border-radius: 16px 16px 0 0; padding: 2px 22px; font-size: 18px;
+}
+.slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+.slot {
+  position: relative; aspect-ratio: 1/1; background: #3c3c47; border: 3px solid #2a2a33; border-radius: 12px;
+  display: grid; place-items: center; font-size: 30px; color: #55555f; padding: 0;
+}
+.slot.filled { background: #e8f0ff; border-color: #fff; color: inherit; box-shadow: 0 3px 0 #202029; }
+.slot b { position: absolute; right: -6px; bottom: -8px; background: var(--red); color: #fff; border: 2px solid #fff; border-radius: 999px; font-size: 12px; min-width: 22px; text-align: center; padding: 0 4px; }
+.cart-total { margin: 12px 0 10px; display: flex; justify-content: space-between; color: #fff; font-size: 18px; }
+
+.layout-menu { grid-template-columns: 1fr 260px; }
+
+/* ---------- Modal ---------- */
+.overlay { position: fixed; inset: 0; background: rgba(6,12,50,.7); display: grid; place-items: center; padding: 14px; z-index: 50; overflow-y: auto; }
+.modal {
+  width: min(520px, 100%); max-height: 92vh; overflow-y: auto; background: var(--cream);
+  border: 6px solid var(--blue-dark); border-radius: 28px; padding: 18px;
+  box-shadow: 0 8px 0 var(--blue-dark); position: relative;
+}
+.modal h2 { margin: 0 0 4px; font-size: 28px; color: var(--red); text-shadow: 2px 2px 0 var(--blue-dark); }
+.modal .x { position: absolute; right: 12px; top: 12px; }
+.hero-emoji { font-size: 64px; text-align: center; background: #e8f0ff; border: 4px solid #fff; border-radius: 20px; padding: 6px; margin: 8px 0; }
+.group { background: #fff; border: 3px solid var(--blue-dark); border-radius: 16px; padding: 10px 12px; margin: 10px 0; }
+.group h4 { margin: 0 0 6px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
+.group .tag { font-size: 12px; background: var(--red); color: #fff; border-radius: 999px; padding: 1px 8px; }
+.group .tag.opt { background: #8a93b8; }
+.opt-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 16px; border-top: 2px dashed #d4daf0; }
+.opt-row:first-of-type { border-top: none; }
+.opt-row input { width: 22px; height: 22px; accent-color: var(--red); }
+.opt-row .plus { margin-left: auto; color: #5a6390; }
+textarea, input[type=text], select {
+  width: 100%; font-family: inherit; font-size: 16px; padding: 10px 12px; border: 3px solid var(--blue-dark);
+  border-radius: 14px; background: #fff; color: var(--ink);
+}
+textarea { resize: vertical; min-height: 64px; }
+label.lbl { display: block; margin: 10px 0 4px; font-size: 16px; }
+.stepper { display: inline-flex; align-items: center; gap: 12px; }
+.stepper button { width: 38px; height: 38px; border-radius: 50%; border: 3px solid var(--blue-dark); background: #fff; font-size: 22px; line-height: 1; color: var(--blue-dark); box-shadow: 0 3px 0 var(--blue-dark); }
+.stepper span { min-width: 24px; text-align: center; font-size: 22px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+.cart-line { display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 3px dashed #cfd5ee; }
+.cart-line:first-child { border-top: none; }
+.cart-line .e { font-size: 34px; background: #e8f0ff; border: 3px solid #fff; border-radius: 14px; width: 52px; height: 52px; display: grid; place-items: center; box-shadow: 0 3px 0 rgba(11,26,92,.3); }
+.cart-line small { display: block; font-family: Arial, sans-serif; font-weight: 600; color: #4b5580; font-size: 12px; line-height: 1.3; }
+
+.ticket-big { text-align: center; }
+.ticket-big .no { font-size: 84px; line-height: 1; color: var(--red); text-shadow: 4px 4px 0 var(--blue-dark); }
+
+.order-card { background: #fff; border: 4px solid var(--blue-dark); border-radius: 18px; padding: 12px; margin: 12px 0; box-shadow: 0 4px 0 var(--blue-dark); }
+.order-card .no { font-size: 34px; color: var(--red); text-shadow: 2px 2px 0 var(--blue-dark); }
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 4px; }
+.step { text-align: center; font-size: 12px; padding: 6px 2px; border-radius: 10px; background: #e1e6f6; color: #7b84a8; border: 3px solid transparent; }
+.step.done { background: #c8f2de; color: #0b6b47; }
+.step.now { background: var(--amber); color: #3a2300; border-color: var(--blue-dark); animation: pulse 1.2s infinite; }
+@keyframes pulse { 50% { transform: scale(1.06); } }
+.muted { color: #5a6390; font-family: Arial, sans-serif; font-weight: 700; font-size: 13px; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 99;
+  background: var(--blue-dark); color: #fff; border: 4px solid #fff; border-radius: 999px; padding: 10px 22px; font-size: 17px; box-shadow: 0 6px 0 rgba(0,0,0,.35);
+}
+
+/* ---------- Kasir ---------- */
+.kasir-bg { background-color: #8c1530; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 36px, transparent 36px 72px); }
+.kantin-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.kantin-tabs button { border: 4px solid var(--blue-dark); background: #fff; color: var(--blue-dark); border-radius: 14px; padding: 6px 14px; font-size: 16px; box-shadow: 0 4px 0 var(--blue-dark); }
+.kantin-tabs button.on { background: var(--amber); }
+.lanes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.lane { background: var(--tile); border: 5px solid #101018; border-radius: 20px; padding: 10px; min-height: 380px; }
+.lane h3 { margin: 0 0 8px; color: #fff; font-size: 17px; display: flex; justify-content: space-between; }
+.lane h3 span { background: #fff; color: var(--ink); border-radius: 999px; padding: 0 9px; }
+.kcard { border: 4px solid #fff; border-radius: 16px; padding: 8px 10px; margin-bottom: 10px; color: #fff; box-shadow: 0 4px 0 #101018; }
+.kcard.baru { background: #d6264a; } .kcard.diproses { background: #2f62e0; }
+.kcard.siap { background: #14946a; } .kcard.selesai { background: #5b5b66; }
+.kcard .no { font-size: 30px; line-height: 1; text-shadow: 2px 2px 0 rgba(0,0,0,.35); }
+.kcard ul { margin: 6px 0; padding-left: 18px; font-family: Arial, sans-serif; font-weight: 700; font-size: 13px; }
+.kcard .sub { opacity: .85; font-weight: 600; }
+.kcard .acts { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.stat { background: #fff; border: 4px solid var(--blue-dark); border-radius: 16px; padding: 10px; text-align: center; }
+.stat b { display: block; font-size: 26px; color: var(--red); }
+.menu-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 3px dashed #cfd5ee; }
+.menu-row:first-child { border-top: none; }
+.menu-row .n { flex: 1; }
+
+/* ---------- Responsif ---------- */
+@media (max-width: 860px) {
+  .stage, .layout-menu { grid-template-columns: 1fr; }
+  .side { flex-direction: row; flex-wrap: wrap; }
+  .side .top-actions { width: 100%; justify-content: flex-end; }
+  .side .ticket { flex: 1 1 140px; font-size: 17px; }
+  .badge { width: 92px; height: 92px; font-size: 17px; left: -10px; top: -22px; }
+  .board-top { padding-left: 60px; }
+  .g4 { grid-template-columns: repeat(3, 1fr); }
+  .lanes { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .lanes { grid-template-columns: 1fr; }
+  .lane { min-height: 0; }
+}
